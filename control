@@ -1,0 +1,8 @@
+Package: com.bypass.grn
+Name: GRN Bypass
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Bypass GRN and replace IP
+Maintainer: Bypass
+Author: Bypass
+Section: Tweaks
