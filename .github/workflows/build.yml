@@ -2,33 +2,39 @@ name: Build GRN Bypass
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
     
     - name: Install Theos
       run: |
         git clone --recursive https://github.com/theos/theos.git $HOME/theos
         echo "THEOS=$HOME/theos" >> $GITHUB_ENV
         echo "$HOME/theos/bin" >> $GITHUB_PATH
-    
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y git build-essential fakeroot libclang-dev
+        
+        # 下载 SDK
+        mkdir -p $HOME/theos/sdks
+        cd $HOME/theos/sdks
+        curl -L -o iPhoneOS14.5.sdk.zip https://github.com/xybp888/iOS-SDKs/raw/master/iPhoneOS14.5.zip
+        unzip -q iPhoneOS14.5.sdk.zip
+        mv iPhoneOS14.5.sdk iPhoneOS14.5.sdk
+        echo "SDKROOT=$HOME/theos/sdks/iPhoneOS14.5.sdk" >> $GITHUB_ENV
     
     - name: Build tweak
-      run: make
+      run: |
+        export ARCHS="arm64"
+        export TARGET="iphone:latest:14.0"
+        make
     
     - name: Upload dylib
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: grnbypass
         path: .theos/obj/debug/*.dylib
